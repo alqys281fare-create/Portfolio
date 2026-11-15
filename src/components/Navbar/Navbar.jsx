@@ -1,31 +1,45 @@
-import React, { useState } from "react";
+
+import React, { useState, useEffect } from "react";
 import Navbar from "react-bootstrap/Navbar";
 import Nav from "react-bootstrap/Nav";
 import Container from "react-bootstrap/Container";
+
 import logo from "../../assets/SLogo2.png";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+
 import {
   AiOutlineHome,
   AiOutlineFundProjectionScreen,
-  AiOutlineContacts
 } from "react-icons/ai";
-import { GiSkills } from "react-icons/gi"
-import { CgFileDocument } from "react-icons/cg";
 
+import { GiSkills } from "react-icons/gi";
 
 function NavBar() {
-  const [expand, updateExpanded] = useState(false);
-  const [navColour, updateNavbar] = useState(false);
+  const [expand, setExpand] = useState(false);
+  const [navColour, setNavColour] = useState(false);
 
-  function scrollHandler() {
-    if (window.scrollY >= 20) {
-      updateNavbar(true);
-    } else {
-      updateNavbar(false);
-    }
-  }
+  const location = useLocation();
 
-  window.addEventListener("scroll", scrollHandler);
+  // Handle navbar background on scroll
+  useEffect(() => {
+    const scrollHandler = () => {
+      setNavColour(window.scrollY >= 20);
+    };
+
+    window.addEventListener("scroll", scrollHandler);
+
+    // Initial check
+    scrollHandler();
+
+    return () => {
+      window.removeEventListener("scroll", scrollHandler);
+    };
+  }, []);
+
+  // Close mobile menu when changing pages
+  useEffect(() => {
+    setExpand(false);
+  }, [location.pathname]);
 
   return (
     <Navbar
@@ -35,80 +49,51 @@ function NavBar() {
       className={navColour ? "sticky" : "navbar"}
     >
       <Container>
-        <Navbar.Brand href="/" className="d-flex">
-          <img src={logo} className="img-fluid logo" alt="brand" />
+        <Navbar.Brand as={Link} to="/" className="d-flex">
+          <img
+            src={logo}
+            className="img-fluid logo"
+            alt="Brand Logo"
+          />
         </Navbar.Brand>
+
         <Navbar.Toggle
           aria-controls="responsive-navbar-nav"
-          onClick={() => {
-            updateExpanded(expand ? false : "expanded");
-          }}
+          onClick={() => setExpand((prev) => !prev)}
         >
           <span></span>
           <span></span>
           <span></span>
         </Navbar.Toggle>
+
         <Navbar.Collapse id="responsive-navbar-nav">
-          <Nav className="ms-auto" defaultActiveKey="#home">
-            <Nav.Item>
-              <Nav.Link as={Link} to="/" onClick={() => updateExpanded(false)}>
-                <AiOutlineHome style={{ marginBottom: "2px" }} /> Home
-              </Nav.Link>
-            </Nav.Item>
+          <Nav className="ms-auto">
+            <Nav.Link
+              as={Link}
+              to="/"
+              active={location.pathname === "/"}
+            >
+              <AiOutlineHome />
+              {" "}Home
+            </Nav.Link>
 
-            <Nav.Item>
-              <Nav.Link
-                as={Link}
-                to="/skillset"
-                onClick={() => updateExpanded(false)}
-              >
-                <GiSkills style={{ marginBottom: "2px" }} /> Skillset
-              </Nav.Link>
-            </Nav.Item>
+            <Nav.Link
+              as={Link}
+              to="/skillset"
+              active={location.pathname === "/skillset"}
+            >
+              <GiSkills />
+              {" "}Skillset
+            </Nav.Link>
 
-            <Nav.Item>
-              <Nav.Link
-                as={Link}
-                to="/project"
-                onClick={() => updateExpanded(false)}
-              >
-                <AiOutlineFundProjectionScreen
-                  style={{ marginBottom: "2px" }}
-                />{" "}
-                Projects
-              </Nav.Link>
-            </Nav.Item>
-
-            {/* <Nav.Item>
-              <Nav.Link
-                as={Link}
-                to="/resume"
-                onClick={() => updateExpanded(false)}
-              >
-                <CgFileDocument style={{ marginBottom: "2px" }} /> Resume
-              </Nav.Link>
-            </Nav.Item> */}
-
-            {/* <Nav.Item>
-              <Nav.Link
-                as={Link}
-                to="/contact"
-                onClick={() => updateExpanded(false)}
-              >
-                <AiOutlineContacts style={{ marginBottom: "2px" }} /> Gallery
-              </Nav.Link>
-            </Nav.Item> */}
-
-            {/* <Nav.Item className="fork-btn">
-              <Button
-                href="https://github.com/19sajib/portfolio"
-                target="_blank"
-                className="fork-btn-inner"
-              >
-                <CgGitFork style={{ fontSize: "1.2em" }} />{" "}
-                <AiFillStar style={{ fontSize: "1.1em" }} />
-              </Button>
-            </Nav.Item> */}
+            <Nav.Link
+              as={Link}
+              to="/project"
+              active={location.pathname === "/project"}
+            >
+              <AiOutlineFundProjectionScreen />
+              {" "}Projects
+            </Nav.Link>
           </Nav>
         </Navbar.Collapse>
       </Container>
